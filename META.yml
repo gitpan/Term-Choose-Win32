@@ -25,4 +25,4 @@ requires:
   Win32::Console: 0.09
   Win32::Console::ANSI: 1.05
   perl: 5.010000
-version: 0.004
+version: 0.005

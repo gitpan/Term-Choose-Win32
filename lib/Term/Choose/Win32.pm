@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -16,10 +16,8 @@ use Win32::Console qw(
     RIGHT_ALT_PRESSED LEFT_ALT_PRESSED RIGHT_CTRL_PRESSED LEFT_CTRL_PRESSED SHIFT_PRESSED
 );
 use Win32::Console::ANSI qw(:func);
-
 # print "\e(U";      # fails the 00-load test
-# print "\e(U\n";    # workaround 1
-INIT{ print "\e(U" } # workaround 2
+INIT{ print "\e(U" } # workaround
 
 #use warnings FATAL => qw(all);
 #use Log::Log4perl qw(get_logger);
@@ -1227,7 +1225,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.004
+Version 0.005
 
 =cut
 
@@ -1255,7 +1253,7 @@ This module is experimental!
 
 L<Term::Choose::Win32> is intended for 'MSWin32' operating systems. For other operating system see L<Term::Choose>.
 
-Based on the I<choose> function from the L<Term::Clui> module - for more details see L<Term::choose/MOTIVATION>.
+Based on the I<choose> function from the L<Term::Clui> module - for more details see L<Term::choose#MOTIVATION>.
 
 =head1 EXPORT
 
@@ -1307,7 +1305,7 @@ Called in void context I<choose> returns nothing.
 
 If the items of the list don't fit on the screen, the user can scroll to the next (previous) page(s).
 
-If the window size is changed, then as soon as the user enters a keystroke I<choose> rewrites the screen. In list context marked items are reset.
+If the window size is changed I<choose> rewrites the screen. In list context marked items are reset.
 
 The "q" key (or Ctrl-D) returns I<undef> or an empty list in list context.
 

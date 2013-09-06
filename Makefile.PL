@@ -19,7 +19,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Carp'                 => 0,
         'Term::Size::Win32'    => '0.209',
-        'Text::LineFold'       => '2012.04',
+        'Term::Choose'         => '1.060',
         'Unicode::GCString'    => '2012.10',
         'Win32::Console'       => '0.09',
         'Win32::Console::ANSI' => '1.05',

@@ -3,13 +3,13 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
 use Carp qw(croak carp);
+use Term::Choose;
 use Term::Size::Win32 qw(chars);
-use Text::LineFold;
 use Unicode::GCString;
 use Win32::Console qw(
     STD_INPUT_HANDLE STD_OUTPUT_HANDLE STD_ERROR_HANDLE ENABLE_MOUSE_INPUT
@@ -113,7 +113,7 @@ use constant SHIFTED_MASK =>
     SHIFT_PRESSED;
 
 
-sub _read_key { # ###
+sub _read_key {
     my ( $arg ) = @_;
     my @event = $arg->{input}->Input;
     my $event_type = shift @event;
@@ -182,7 +182,7 @@ sub _read_key { # ###
 }
 
 
-sub _init_scr { # ###
+sub _init_scr {
     # OO so DESTROY does the cleanup.
     my $class = shift;
     my ( $arg ) = @_;
@@ -193,7 +193,7 @@ sub _init_scr { # ###
     $self->{input} = Win32::Console->new( STD_INPUT_HANDLE );
     $self->{old_in_mode} = $arg->{input}->Mode();
     $self->{input}->Mode( ENABLE_MOUSE_INPUT ) if $self->{mouse};
-    $self->{output} = Win32::Console->new( $self->{console_out} );
+    $self->{output} = Win32::Console->new( $self->{cons_out} );
     if ( $self->{hide_cursor} ) {
         $self->{old_cursor} = [ $self->{output}->Cursor() ];
         $self->{output}->Cursor( -1, -1, -1, 0 );
@@ -201,7 +201,7 @@ sub _init_scr { # ###
     return $self;
 }
 
-sub DESTROY { # ###
+sub DESTROY {
     my $self = shift;
     print LEFT x $self->{screen_col}, UP x ( $self->{screen_row} + $self->{nr_prompt_lines} );
     print CLEAR_TO_END_OF_SCREEN;
@@ -222,271 +222,7 @@ sub DESTROY { # ###
 }
 
 
-sub _length_longest {
-    my ( $arg ) = @_;
-    if ( defined $arg->{ll} ) {
-        $arg->{length_longest} = $arg->{ll};
-        $arg->{length} = [];
-    }
-    else {
-        my $list = $arg->{list};
-        my $len;
-        my $longest = 0;
-        for my $i ( 0 .. $#$list ) {
-            my $gcs = Unicode::GCString->new( $list->[$i] );
-            $len->[$i] = $gcs->columns();
-            $longest = $len->[$i] if $len->[$i] > $longest;
-        }
-        $arg->{length_longest} = $longest;
-        $arg->{length} = $len;
-    }
-}
-
-
-sub _copy_orig_list {
-    my ( $arg ) = @_;
-    if ( $arg->{ll} ) {
-        if ( $arg->{list_to_long} ) {
-            return [ map {
-                my $copy = $_;
-                if ( ! $copy ) {
-                    $copy = $arg->{undef} if ! defined $copy;
-                    $copy = $arg->{empty} if $copy eq '';
-                }
-                $copy;
-            } @{$arg->{orig_list}}[ 0 .. $arg->{limit} - 1 ] ];
-        }
-        return [ map {
-            my $copy = $_;
-            if ( ! $copy ) {
-                $copy = $arg->{undef} if ! defined $copy;
-                $copy = $arg->{empty} if $copy eq '';
-            }
-            $copy;
-        } @{$arg->{orig_list}} ];
-    }
-    else {
-        if ( $arg->{list_to_long} ) {
-            return [ map {
-                my $copy = $_;
-                if ( ! $copy ) {
-                    $copy = $arg->{undef} if ! defined $copy;
-                    $copy = $arg->{empty} if $copy eq '';
-                }
-                utf8::upgrade( $copy );
-                $copy =~ s/\p{Space}/ /g;  # replace, but don't squash sequences of spaces
-                $copy =~ s/\P{Print}/\x{fffd}/g;  # (�)
-                $copy;
-            } @{$arg->{orig_list}}[ 0 .. $arg->{limit} - 1 ] ];
-        }
-        return [ map {
-            my $copy = $_;
-            if ( ! $copy ) {
-                $copy = $arg->{undef} if ! defined $copy;
-                $copy = $arg->{empty} if $copy eq '';
-            }
-            utf8::upgrade( $copy );
-            $copy =~ s/\p{Space}/ /g;
-            $copy =~ s/\P{Print}/\x{fffd}/g;
-            $copy;
-        } @{$arg->{orig_list}} ];
-    }
-}
-
-
-sub _set_defaults {
-    my ( $config, $wantarray ) = @_;
-    my $prompt = defined $wantarray ? 'Your choice:' : 'Close with ENTER';
-    $config->{beep}             //= 0;
-    $config->{clear_screen}     //= 0;
-    #$config->{default}         //= undef;
-    $config->{empty}            //= '<empty>';
-    $config->{hide_cursor}      //= 1;
-    $config->{index}            //= 0;
-    $config->{justify}          //= 0;
-    $config->{keep}             //= 5;
-    $config->{layout}           //= 1;
-    #$config->{lf}              //= undef;
-    #$config->{ll}              //= undef;
-    $config->{limit}            //= 100_000;
-    $config->{mouse}            //= 0;
-    $config->{order}            //= 1;
-    $config->{pad}              //= 2;
-    $config->{pad_one_row}      //= $config->{pad};
-    $config->{page}             //= 1;
-    $config->{prompt}           //= $prompt;
-    #$config->{screen_width}    //= undef;
-    $config->{undef}            //= '<undef>';
-    return $config;
-}
-
-
-sub _validate_options {
-    my ( $config, $wantarray, $list_length ) = @_;
-    my $limit = 1_000_000_000;
-    my $validate = {    #   min      max
-        beep            => [ 0,       1 ],
-        clear_screen    => [ 0,       1 ],
-        default         => [ 0,  $limit ],
-        empty           => '',
-        hide_cursor     => [ 0,       1 ],
-        index           => [ 0,       1 ],
-        justify         => [ 0,       2 ],
-        keep            => [ 1,  $limit ],
-        layout          => [ 0,       3 ],
-        lf              => 'ARRAY',
-        ll              => [ 1,  $limit ],
-        limit           => [ 1,  $limit ],
-        mouse           => [ 0,       4 ],
-        order           => [ 0,       1 ],
-        pad             => [ 0,  $limit ],
-        pad_one_row     => [ 0,  $limit ],
-        page            => [ 0,       1 ],
-        prompt          => '',
-        screen_width    => [ 1,  $limit ],
-        undef           => '',
-    };
-    my $warn = 0;
-    for my $key ( keys %$config ) {
-        if ( ! exists $validate->{$key} ) {
-            carp "choose: \"$key\" is not a valid option";
-            delete $config->{$key};
-            $warn++;
-        }
-        elsif ( $validate->{$key} ) {
-            next if ! defined $config->{$key};
-            if ( $key eq 'lf' ) {
-                my $warn_str;
-                if ( ref( $config->{$key} ) ne 'ARRAY' ) {
-                    $warn_str = "choose: the value for the option \"$key\" is not a ARRAY reference.";
-                }
-                elsif ( @{$config->{$key}} != 2 ) {
-                    $warn_str = "choose: the value for the option \"$key\" is not a reference to an array with 2 elements.";
-                }
-                else {
-                    for my $i ( 0 .. $#{$config->{$key}} ) {
-                        if ( defined $config->{$key}[$i] && $config->{$key}[$i] !~ m/^[0-9]+\z/ ) {
-                            my $sep = $warn_str ? "\n" : "";
-                            $warn_str .= "choose: option \"$key\": ";
-                            $warn_str .= "'$config->{$key}[$i]' is not a valid value.$sep";
-                        }
-                    }
-                }
-                if ( $warn_str ) {
-                    $warn_str .= " Falling back to the default value.";
-                    carp $warn_str;
-                    $config->{$key} = undef;
-                    $warn++;
-                }
-            }
-            elsif (   $config->{$key} !~ m/^[0-9]+\z/
-                   || $config->{$key} < $validate->{$key}[MIN]
-                   || $config->{$key} > $validate->{$key}[MAX]
-            ) {
-                carp "choose: \"$config->{$key}\" is not a valid value for the option \"$key\"."
-                    . " Falling back to the default value.";
-                $config->{$key} = undef;
-                $warn++;
-            }
-        }
-        # elsif ( $validate->{$key} eq '' ) {
-        #     nothing to do;
-        # }
-    }
-    $config = _set_defaults( $config, $wantarray );
-    if ( $list_length > $config->{limit} ) {
-        carp "choose: The list has $list_length items. Option \"limit\" is set to $config->{limit}. "
-           . "The first $config->{limit} itmes are used by choose.";
-        $config->{list_to_long} = 1;
-        print "Press a key to continue";
-        $warn++;
-    }
-    if ( $warn ) {
-        print "Press a key to continue";
-        my $dummy = <STDIN>;
-    }
-    $config->{wantarray} = $wantarray;
-    return $config;
-}
-
-
-sub _set_default_cell {
-    my ( $arg ) = @_;
-    $arg->{tmp_cursor} = [ 0, 0 ];
-    LOOP: for my $i ( 0 .. $#{$arg->{rc2idx}} ) {
-        # if ( $arg->{default} ~~ @{$arg->{rc2idx}[$i]} ) {
-            for my $j ( 0 .. $#{$arg->{rc2idx}[$i]} ) {
-                if ( $arg->{default} == $arg->{rc2idx}[$i][$j] ) {
-                    $arg->{tmp_cursor} = [ $i, $j ];
-                    last LOOP;
-                }
-            }
-        # }
-    }
-    while ( $arg->{tmp_cursor}[ROW] > $arg->{p_end} ) {
-        $arg->{row_on_top} = $arg->{avail_height} * ( int( $arg->{cursor}[ROW] / $arg->{avail_height} ) + 1 );
-        $arg->{cursor}[ROW] = $arg->{row_on_top};
-        $arg->{p_begin} = $arg->{row_on_top};
-        $arg->{p_end} = $arg->{p_begin} + $arg->{avail_height} - 1;
-        $arg->{p_end} = $#{$arg->{rc2idx}} if $arg->{p_end} > $#{$arg->{rc2idx}};
-    }
-    $arg->{cursor} = $arg->{tmp_cursor};
-}
-
-
-sub _prepare_page_number {
-    my ( $arg ) = @_;
-    $arg->{pp} = int( $#{$arg->{rc2idx}} / ( $arg->{avail_height} + $arg->{tail} ) ) + 1;
-    if ( $arg->{pp} > 1 ) {
-        $arg->{pp} = int( $#{$arg->{rc2idx}} / $arg->{avail_height} ) + 1;
-        $arg->{width_pp} = length $arg->{pp};
-        $arg->{pp_printf_fmt} = "--- Page %0*d/%d ---";
-        $arg->{pp_printf_type} = 0;
-        if ( length sprintf( $arg->{pp_printf_fmt}, $arg->{width_pp}, $arg->{pp}, $arg->{pp} )  > $arg->{avail_width} ) {
-            $arg->{pp_printf_fmt} = "%0*d/%d";
-            if ( length sprintf( $arg->{pp_printf_fmt}, $arg->{width_pp}, $arg->{pp}, $arg->{pp} )  > $arg->{avail_width} ) {
-                $arg->{width_pp} = $arg->{avail_width} if $arg->{width_pp} > $arg->{avail_width};
-                $arg->{pp_printf_fmt} = "%0*.*s";
-                $arg->{pp_printf_type} = 1;
-            }
-        }
-    }
-    else {
-        $arg->{avail_height} += $arg->{tail};
-        $arg->{tail} = 0;
-    }
-}
-
-
-sub _prepare_promptline {
-    my ( $arg ) = @_;
-    $arg->{prompt} =~ s/[^\n\P{Space}]/ /g;
-    $arg->{prompt} =~ s/[^\n\p{Print}]/\x{fffd}/g;
-    utf8::upgrade( $arg->{prompt} );
-    my $gcs_prompt = Unicode::GCString->new( $arg->{prompt} );
-    if ( $arg->{prompt} !~ /\n/ && $gcs_prompt->columns() <= $arg->{avail_width} ) {
-        $arg->{nr_prompt_lines} = 1;
-        $arg->{prompt_copy} = $arg->{prompt} . "\n\r";
-    }
-    else {
-        my $line_fold = Text::LineFold->new(
-            Charset=> 'utf-8',
-            ColMax => $arg->{avail_width},
-            OutputCharset => '_UNICODE_',
-            Urgent => 'FORCE'
-        );
-        if ( defined $arg->{lf} ) {
-            $arg->{prompt_copy} = $line_fold->fold( ' ' x $arg->{lf}[0] // 0, ' ' x $arg->{lf}[1] // 0, $arg->{prompt} );
-        }
-        else {
-            $arg->{prompt_copy} = $line_fold->fold( $arg->{prompt}, 'PLAIN' );
-        }
-        $arg->{nr_prompt_lines} = $arg->{prompt_copy} =~ s/\n/\n\r/g;
-    }
-}
-
-
-sub _write_first_screen { # ###
+sub _write_first_screen {
     my ( $arg ) = @_;
     ( $arg->{avail_width_orig}, $arg->{avail_height_orig} ) = chars( $arg->{handle_out} );
     ( $arg->{avail_width}, $arg->{avail_height} ) = ( $arg->{avail_width_orig}, $arg->{avail_height_orig} );
@@ -502,7 +238,7 @@ sub _write_first_screen { # ###
         $arg->{nr_prompt_lines} = 0;
     }
     else {
-        _prepare_promptline( $arg );
+        Term::Choose::_prepare_promptline( $arg );
     }
     $arg->{tail} = $arg->{page} ? 1 : 0;
     $arg->{avail_height} -= $arg->{nr_prompt_lines} + $arg->{tail};
@@ -511,8 +247,8 @@ sub _write_first_screen { # ###
         $arg->{avail_height} = $height >= $arg->{keep} ? $arg->{keep} : $height;
         $arg->{avail_height} = 1 if $arg->{avail_height} < 1;
     }
-    _size_and_layout( $arg );
-    _prepare_page_number( $arg ) if $arg->{page};
+    Term::Choose::_size_and_layout( $arg );
+    Term::Choose::_prepare_page_number( $arg ) if $arg->{page};
     $arg->{avail_height_idx} = $arg->{avail_height} - 1;
     $arg->{p_begin}    = 0;
     $arg->{p_end}      = $arg->{avail_height_idx};
@@ -522,7 +258,7 @@ sub _write_first_screen { # ###
     $arg->{screen_row} = 0;
     $arg->{screen_col} = 0;
     $arg->{cursor}     = [ 0, 0 ];
-    _set_default_cell( $arg ) if defined $arg->{default} && $arg->{default} <= $#{$arg->{list}};
+    Term::Choose::_set_default_cell( $arg ) if defined $arg->{default} && $arg->{default} <= $#{$arg->{list}};
     if ( $arg->{clear_screen} ) {
         print NL x $arg->{avail_height_orig};
         print UP x $arg->{avail_height_orig};
@@ -531,15 +267,14 @@ sub _write_first_screen { # ###
     _wr_screen( $arg );
     if ( $arg->{mouse} ) {
         ( $arg->{abs_cursor_x}, $arg->{abs_cursor_y} ) = Cursor();
-        $arg->{abs_cursor_x}--;
+        #$arg->{abs_cursor_x}--;
         $arg->{abs_cursor_y}--;
         $arg->{cursor_row} = $arg->{screen_row};
-        #$arg->{cursor_col} = $arg->{screen_col};
     }
 }
 
 
-sub choose { # ###
+sub choose {
     my ( $orig_list_ref, $config ) = @_;
     croak "choose: called without arguments. 'choose' expects 1 or 2 arguments." if @_ < 1;
     croak "choose: called with " . scalar @_ . " arguments. 'choose' expects 1 or 2 arguments." if @_ > 2;
@@ -561,12 +296,12 @@ sub choose { # ###
     }
     local $\ = undef;
     local $, = undef;
-    my $arg = _validate_options( $config // {}, wantarray, scalar @$orig_list_ref );
-    $arg->{orig_list}   = $orig_list_ref;
-    $arg->{handle_out}  = -t \*STDOUT ? \*STDOUT : \*STDERR;
-    $arg->{console_out} = -t \*STDOUT ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE;
-    $arg->{list}        = _copy_orig_list( $arg );
-    _length_longest( $arg );
+    my $arg = Term::Choose::_validate_options( $config // {}, wantarray, scalar @$orig_list_ref );
+    $arg->{orig_list}  = $orig_list_ref;
+    $arg->{handle_out} = -t \*STDOUT ? \*STDOUT : \*STDERR;
+    $arg->{cons_out}   = -t \*STDOUT ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE;
+    $arg->{list}       = Term::Choose::_copy_orig_list( $arg );
+    Term::Choose::_length_longest( $arg );
     $arg->{col_width} = $arg->{length_longest} + $arg->{pad};
     local $SIG{'INT'} = sub {
         my $signame = shift;
@@ -891,7 +626,7 @@ sub _beep {
 }
 
 
-sub _goto { # ###
+sub _goto {
     my ( $arg, $newrow, $newcol ) = @_;
     if ( $newrow > $arg->{screen_row} ) {
         # with *nix and ReadMode 'ultra-raw':
@@ -915,7 +650,7 @@ sub _goto { # ###
 }
 
 
-sub _wr_screen { # ###
+sub _wr_screen {
     my ( $arg ) = @_;
     _goto( $arg, 0, 0 );
     print CLEAR_TO_END_OF_SCREEN;
@@ -939,7 +674,7 @@ sub _wr_screen { # ###
 }
 
 
-sub _wr_cell { # ###
+sub _wr_cell {
     my( $arg, $row, $col ) = @_;
     if ( $#{$arg->{rc2idx}} == 0 ) {
         my $lngth = 0;
@@ -961,155 +696,10 @@ sub _wr_cell { # ###
         _goto( $arg, $row - $arg->{row_on_top}, $col * $arg->{col_width} );
         print BOLD, UNDERLINE if $arg->{marked}[$row][$col];
         print REVERSE         if $row == $arg->{cursor}[ROW] && $col == $arg->{cursor}[COL];
-        print _unicode_sprintf( $arg, $arg->{rc2idx}[$row][$col] );
+        print Term::Choose::_unicode_sprintf( $arg, $arg->{rc2idx}[$row][$col] );
         $arg->{screen_col} += $arg->{length_longest};
     }
     print RESET if $arg->{marked}[$row][$col] || $row == $arg->{cursor}[ROW] && $col == $arg->{cursor}[COL];
-}
-
-
-sub _size_and_layout {
-    my ( $arg ) = @_;
-    my $layout = $arg->{layout};
-    $arg->{rc2idx} = [];
-    if ( $arg->{length_longest} > $arg->{avail_width} ) {
-        $arg->{avail_col_width} = $arg->{avail_width};
-        $layout = 3;
-    }
-    else {
-        $arg->{avail_col_width} = $arg->{length_longest};
-    }
-    my $all_in_first_row;
-    if ( $layout == 2 ) {
-        $layout = 3 if scalar @{$arg->{list}} <= $arg->{avail_height};
-    }
-    elsif ( $layout < 2 ) {
-        for my $idx ( 0 .. $#{$arg->{list}} ) {
-            $all_in_first_row .= $arg->{list}[$idx];
-            $all_in_first_row .= ' ' x $arg->{pad_one_row} if $idx < $#{$arg->{list}};
-            my $gcs_first_row = Unicode::GCString->new( $all_in_first_row );
-            if ( $gcs_first_row->columns() > $arg->{avail_width} ) {
-                $all_in_first_row = '';
-                last;
-            }
-        }
-    }
-    if ( $all_in_first_row ) {
-        $arg->{rc2idx}[0] = [ 0 .. $#{$arg->{list}} ];
-    }
-    elsif ( $layout == 3 ) {
-        if ( $arg->{length_longest} <= $arg->{avail_width} ) {
-            for my $idx ( 0 .. $#{$arg->{list}} ) {
-                $arg->{rc2idx}[$idx][0] = $idx;
-            }
-        }
-        else {
-            for my $idx ( 0 .. $#{$arg->{list}} ) {
-                my $gcs_element = Unicode::GCString->new( $arg->{list}[$idx] );
-                if ( $gcs_element->columns > $arg->{avail_width} ) {
-                    $arg->{list}[$idx] = _unicode_trim( $gcs_element, $arg->{avail_width} - 3 ) . '...';
-                }
-                $arg->{rc2idx}[$idx][0] = $idx;
-            }
-        }
-    }
-    else {
-        # auto_format
-        my $tmp_avail_width = $arg->{avail_width};
-        if ( $arg->{layout} == 1 || $arg->{layout} == 2 ) {
-            my $tmc = int( @{$arg->{list}} / $arg->{avail_height} );
-            $tmc++ if @{$arg->{list}} % $arg->{avail_height};
-            $tmc *= $arg->{col_width};
-            if ( $tmc < $tmp_avail_width ) {
-                $tmc = int( $tmc + ( ( $tmp_avail_width - $tmc ) / 1.5 ) ) if $arg->{layout} == 1;
-                $tmc = int( $tmc + ( ( $tmp_avail_width - $tmc ) / 6 ) )   if $arg->{layout} == 2;
-                $tmp_avail_width = $tmc;
-            }
-        }
-        # order
-        my $cols_per_row = int( $tmp_avail_width / $arg->{col_width} );
-        $cols_per_row = 1 if $cols_per_row < 1;
-        my $rows = int( ( $#{$arg->{list}} + $cols_per_row ) / $cols_per_row );
-        $arg->{rest} = @{$arg->{list}} % $cols_per_row;
-        if ( $arg->{order} == 1 ) {
-            my @rearranged_idx;
-            my $begin = 0;
-            my $end = $rows - 1;
-            for my $c ( 0 .. $cols_per_row - 1 ) {
-                --$end if $arg->{rest} && $c >= $arg->{rest};
-                $rearranged_idx[$c]  = [ $begin .. $end ];
-                $begin = $end + 1;
-                $end = $begin + $rows - 1;
-            }
-            for my $r ( 0 .. $rows - 1 ) {
-                my @temp_idx;
-                for my $c ( 0 .. $cols_per_row - 1 ) {
-                    next if $arg->{rest} && $r == $rows - 1 && $c >= $arg->{rest};
-                    push @temp_idx, $rearranged_idx[$c][$r];
-                }
-                push @{$arg->{rc2idx}}, \@temp_idx;
-            }
-        }
-        else {
-            my $begin = 0;
-            my $end = $cols_per_row - 1;
-            $end = $#{$arg->{list}} if $end > $#{$arg->{list}};
-            push @{$arg->{rc2idx}}, [ $begin .. $end ];
-            while ( $end < $#{$arg->{list}} ) {
-                $begin += $cols_per_row;
-                $end   += $cols_per_row;
-                $end    = $#{$arg->{list}} if $end > $#{$arg->{list}};
-                push @{$arg->{rc2idx}}, [ $begin .. $end ];
-            }
-        }
-    }
-}
-
-
-sub _unicode_trim {
-    my ( $gcs, $len ) = @_;
-    return '' if $len <= 0; #
-    my $pos = $gcs->pos;
-    $gcs->pos( 0 );
-    my $cols = 0;
-    my $gc;
-    while ( defined( $gc = $gcs->next ) ) {
-        if ( $len < ( $cols += $gc->columns ) ) {
-            my $ret = $gcs->substr( 0, $gcs->pos - 1 );
-            $gcs->pos( $pos );
-            return $ret->as_string;
-        }
-    }
-    $gcs->pos( $pos );
-    return $gcs->as_string;
-}
-
-
-sub _unicode_sprintf {
-    my ( $arg, $idx ) = @_;
-    my $unicode;
-    my $str_length = $arg->{length}[$idx] // $arg->{length_longest};
-    if ( $str_length > $arg->{avail_col_width} ) {
-        my $gcs = Unicode::GCString->new( $arg->{list}[$idx] );
-        $unicode = _unicode_trim( $gcs, $arg->{avail_col_width} );
-    }
-    elsif ( $str_length < $arg->{avail_col_width} ) {
-        if ( $arg->{justify} == 0 ) {
-            $unicode = $arg->{list}[$idx] . " " x ( $arg->{avail_col_width} - $str_length );
-        }
-        elsif ( $arg->{justify} == 1 ) {
-            $unicode = " " x ( $arg->{avail_col_width} - $str_length ) . $arg->{list}[$idx];
-        }
-        elsif ( $arg->{justify} == 2 ) {
-            my $all = $arg->{avail_col_width} - $str_length;
-            my $half = int( $all / 2 );
-            $unicode = " " x $half . $arg->{list}[$idx] . " " x ( $all - $half );
-        }
-    }
-    else {
-        $unicode = $arg->{list}[$idx];
-    }
-    return $unicode;
 }
 
 
@@ -1146,7 +736,7 @@ sub _handle_mouse {
         my $row = 0;
         if ( $row == $mouse_row ) {
             my $end_last_col = 0;
-            for my $col ( 0 .. $#{$arg->{rc2idx}[$row]} ) {
+            COL: for my $col ( 0 .. $#{$arg->{rc2idx}[$row]} ) {
                 my $gcs_element = Unicode::GCString->new( $arg->{list}[$arg->{rc2idx}[$row][$col]] );
                 my $end_this_col = $end_last_col + $gcs_element->columns() + $arg->{pad_one_row};
                 if ( $col == 0 ) {
@@ -1225,7 +815,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.005
+Version 0.006
 
 =cut
 
@@ -1249,11 +839,9 @@ Version 0.005
 
 Choose from a list of items.
 
-This module is experimental!
-
 L<Term::Choose::Win32> is intended for 'MSWin32' operating systems. For other operating system see L<Term::Choose>.
 
-Based on the I<choose> function from the L<Term::Clui> module - for more details see L<Term::choose#MOTIVATION>.
+Based on the I<choose> function from the L<Term::Clui> module - for more details see L<Term::choose/MOTIVATION|https://metacpan.org/module/Term::Choose#MOTIVATION>.
 
 =head1 EXPORT
 
@@ -1525,13 +1113,9 @@ Allowed values:  0 or greater
 
 1 - mouse mode enabled
 
-2 - mouse mode enabled; maxcols and maxrows limited to 223
+2 - mouse mode enabled; the output width is limited to 223 print-columns and the height to 223 rows
 
-3 - mouse mode enabled
-
-4 - mouse mode enabled
-
-There is no difference between mouse mode 1, 3 and 4.
+Mouse mode 3 and 4 behave like mouse mode 1.
 
 =head4 keep
 
@@ -1653,7 +1237,7 @@ Used modules not provided as core modules:
 
 =item
 
-L<Text::LineFold>
+L<Term::Choose>
 
 =item
 

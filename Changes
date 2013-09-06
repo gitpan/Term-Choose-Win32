@@ -1,6 +1,11 @@
 Revision history for Term::Choose::Win32
 
 
+0.006   2013-09-06
+        - Inherit from Term::Choose.
+        - Added dependency Term::Choose; removed dependency Text::LineFold.
+        - Update documentation.
+
 0.005   2013-09-04
         - Improved documentation.
 

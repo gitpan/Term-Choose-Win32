@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.006';
+our $VERSION = '0.007';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -226,8 +226,8 @@ sub _write_first_screen {
     my ( $arg ) = @_;
     ( $arg->{avail_width_orig}, $arg->{avail_height_orig} ) = chars( $arg->{handle_out} );
     ( $arg->{avail_width}, $arg->{avail_height} ) = ( $arg->{avail_width_orig}, $arg->{avail_height_orig} );
-    if ( $arg->{screen_width} && $arg->{avail_width} > $arg->{screen_width} ) {
-        $arg->{avail_width} = $arg->{screen_width};
+    if ( $arg->{max_width} && $arg->{avail_width} > $arg->{max_width} ) {
+        $arg->{avail_width} = $arg->{max_width};
     }
     if ( $arg->{mouse} == 2 ) {
         $arg->{avail_width}  = MAX_COL_MOUSE_1003 if $arg->{avail_width}  > MAX_COL_MOUSE_1003;
@@ -247,6 +247,7 @@ sub _write_first_screen {
         $arg->{avail_height} = $height >= $arg->{keep} ? $arg->{keep} : $height;
         $arg->{avail_height} = 1 if $arg->{avail_height} < 1;
     }
+    $arg->{avail_height} = $arg->{max_height} if $arg->{max_height} && $arg->{max_height} < $arg->{avail_height};
     Term::Choose::_size_and_layout( $arg );
     Term::Choose::_prepare_page_number( $arg ) if $arg->{page};
     $arg->{avail_height_idx} = $arg->{avail_height} - 1;
@@ -815,7 +816,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.006
+Version 0.007
 
 =cut
 
@@ -1037,11 +1038,31 @@ From broad to narrow: 0 > 1 > 2 > 3
 
 =back
 
-=head4 screen_width
+=head4 max_height
 
-If defined, sets the screen width to I<screen_width> if the screen width is greater than I<screen_width>.
+If defined sets the maximal number of rows used for printing list items.
 
-Screen width refers here to the number of print columns.
+If the available height is less than I<max_height> I<max_height> is set to the available height.
+
+Height in this context means print rows.
+
+I<max_height> overwrites I<keep> if I<max_height> is set and less than I<keep>.
+
+Allowed values: 1 or greater
+
+(default: undef)
+
+=head4 screen_width DEPRECATED
+
+Use I<max_width> instead - I<screen_width> is now called I<max_width>.
+
+The deprecated name I<screen_width> will be removed in a future release.
+
+=head4 max_width
+
+If defined, sets the output width to I<max_width> if the terminal width is greater than I<max_width>.
+
+Width refers here to the number of print columns.
 
 Allowed values: 1 or greater
 
@@ -1085,7 +1106,7 @@ Allowed values:  0 or greater
 
 =head4 default
 
-With the option I<default> can be selected an element, which will be highlighted as the default instead of the first element.
+With the option I<default> it can be selected an element, which will be highlighted as the default instead of the first element.
 
 I<default> expects a zero indexed value, so e.g. to highlight the third element the value would be I<2>.
 
@@ -1269,7 +1290,7 @@ It is needed a terminal that uses a monospaced font.
 
 =head2 Escape sequences
 
-The Terminal needs to understand the following ANSI escape sequences:
+L<Term::Choose::Win32> uses the following ANSI escape sequences:
 
     "\e[A"      Cursor Up
 
@@ -1287,11 +1308,11 @@ The Terminal needs to understand the following ANSI escape sequences:
 
     "\e[7m"     Inverse
 
-L<Term::Choose::Win32> uses L<Win32::Console::ANSI> to understand these ANSI escape sequences.
+To understand these ANSI escape sequences L<Term::Choose::Win32> uses the L<Win32::Console::ANSI> module.
 
-The L<Win32::Console::ANSI>::Cursor() function is used to get the cursor position.
+The L<Win32::Console::ANSI> Cursor() function is used to get the cursor position.
 
-To read key and mouse events L<Term::Choose::Win32> uses the L<Win32::Console> module.
+To read key and mouse events L<Term::Choose::Win32> uses L<Win32::Console>.
 
 L<Win32::Console> is also used to hide the cursor.
 

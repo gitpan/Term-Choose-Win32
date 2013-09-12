@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.007';
+our $VERSION = '0.008';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -12,7 +12,7 @@ use Term::Choose;
 use Term::Size::Win32 qw(chars);
 use Unicode::GCString;
 use Win32::Console qw(
-    STD_INPUT_HANDLE STD_OUTPUT_HANDLE STD_ERROR_HANDLE ENABLE_MOUSE_INPUT
+    STD_INPUT_HANDLE ENABLE_MOUSE_INPUT
     RIGHT_ALT_PRESSED LEFT_ALT_PRESSED RIGHT_CTRL_PRESSED LEFT_CTRL_PRESSED SHIFT_PRESSED
 );
 use Win32::Console::ANSI qw(:func);
@@ -35,6 +35,9 @@ use constant {
     NL                              => "\n",
     RIGHT                           => "\e[C",
     LEFT                            => "\e[D",
+
+    HIDE_CURSOR                     => "\e[?25l",
+    SHOW_CURSOR                     => "\e[?25h",
 
     MAX_ROW_MOUSE_1003              => 223,
     MAX_COL_MOUSE_1003              => 223,
@@ -193,11 +196,7 @@ sub _init_scr {
     $self->{input} = Win32::Console->new( STD_INPUT_HANDLE );
     $self->{old_in_mode} = $arg->{input}->Mode();
     $self->{input}->Mode( ENABLE_MOUSE_INPUT ) if $self->{mouse};
-    $self->{output} = Win32::Console->new( $self->{cons_out} );
-    if ( $self->{hide_cursor} ) {
-        $self->{old_cursor} = [ $self->{output}->Cursor() ];
-        $self->{output}->Cursor( -1, -1, -1, 0 );
-    }
+    print HIDE_CURSOR if $self->{hide_cursor};
     return $self;
 }
 
@@ -208,13 +207,10 @@ sub DESTROY {
     print RESET;
     $self->{input}->Mode( $self->{old_in_mode} ) if $self->{mouse};
     $self->{input}->Flush;
-    if ( $self->{hide_cursor} ) {
-        $self->{output}->Cursor( @{$self->{old_cursor}} );
-    }
     # workaround Bug #33513:
     $self->{input}{handle} = undef;
-    $self->{output}{handle} = undef;
     #
+    print SHOW_CURSOR if $self->{hide_cursor};
     $| = $self->{backup_flush};
     select( $self->{old_handle} );
     carp "EOT: $!"      if $self->{EOT};
@@ -300,7 +296,6 @@ sub choose {
     my $arg = Term::Choose::_validate_options( $config // {}, wantarray, scalar @$orig_list_ref );
     $arg->{orig_list}  = $orig_list_ref;
     $arg->{handle_out} = -t \*STDOUT ? \*STDOUT : \*STDERR;
-    $arg->{cons_out}   = -t \*STDOUT ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE;
     $arg->{list}       = Term::Choose::_copy_orig_list( $arg );
     Term::Choose::_length_longest( $arg );
     $arg->{col_width} = $arg->{length_longest} + $arg->{pad};
@@ -816,7 +811,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.007
+Version 0.008
 
 =cut
 
@@ -1308,13 +1303,17 @@ L<Term::Choose::Win32> uses the following ANSI escape sequences:
 
     "\e[7m"     Inverse
 
-To understand these ANSI escape sequences L<Term::Choose::Win32> uses the L<Win32::Console::ANSI> module.
+If the option "hide_cursor" is enabled:
+
+"\e[?25l"   Hide Cursor
+
+"\e[?25h"   Show Cursor
+
+To understand these escape sequences L<Term::Choose::Win32> uses the L<Win32::Console::ANSI> module.
 
 The L<Win32::Console::ANSI> Cursor() function is used to get the cursor position.
 
 To read key and mouse events L<Term::Choose::Win32> uses L<Win32::Console>.
-
-L<Win32::Console> is also used to hide the cursor.
 
 =head1 SUPPORT
 

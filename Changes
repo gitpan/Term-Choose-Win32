@@ -1,6 +1,11 @@
 Revision history for Term::Choose::Win32
 
 
+0.008   2013-09-12
+        - Win32::Console::ANSI is used to hide the cursor instead of Win32::Console.
+        - Win32::Console::ANSI Version 1.06 or greater is needed.
+        - Update documentation.
+
 0.007   2013-09-07
         - Added option "max_height".
         - Renamed option "screen_width" to "max_width".

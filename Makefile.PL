@@ -22,7 +22,7 @@ WriteMakefile(
         'Term::Choose'         => '1.061',
         'Unicode::GCString'    => '2012.10',
         'Win32::Console'       => '0.09',
-        'Win32::Console::ANSI' => '1.05',
+        'Win32::Console::ANSI' => '1.06',
     },
     clean => {
         FILES => 'Term-Choose-Win32-*',

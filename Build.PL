@@ -23,7 +23,7 @@ my $builder = Module::Build->new(
         'Term::Choose'         => '1.061',
         'Unicode::GCString'    => '2012.10',
         'Win32::Console'       => '0.09',
-        'Win32::Console::ANSI' => '1.05',
+        'Win32::Console::ANSI' => '1.06',
     },
     add_to_cleanup      => [ 'Term-Choose-Win32-*' ],
     #create_makefile_pl => 'traditional',

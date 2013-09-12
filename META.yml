@@ -23,6 +23,6 @@ requires:
   Term::Size::Win32: 0.209
   Unicode::GCString: 2012.10
   Win32::Console: 0.09
-  Win32::Console::ANSI: 1.05
+  Win32::Console::ANSI: 1.06
   perl: 5.010000
-version: 0.007
+version: 0.008

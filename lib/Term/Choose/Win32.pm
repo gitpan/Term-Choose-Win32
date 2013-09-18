@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.008';
+our $VERSION = '0.009';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -51,7 +51,7 @@ use constant {
 };
 
 use constant {
-    NEXT_read_key      => -1,
+    NEXT_get_key      => -1,
 
     CONTROL_SPACE   => 0x00,
     CONTROL_A       => 0x01,
@@ -116,14 +116,14 @@ use constant SHIFTED_MASK =>
     SHIFT_PRESSED;
 
 
-sub _read_key {
+sub _get_key {
     my ( $arg ) = @_;
     my @event = $arg->{input}->Input;
     my $event_type = shift @event;
-    return NEXT_read_key if ! defined $event_type;
+    return NEXT_get_key if ! defined $event_type;
     if ( $event_type == 1 ) {
         my ( $key_down, $repeat_count, $v_key_code, $v_scan_code, $char, $ctrl_key_state ) = @event;
-        return NEXT_read_key if ! $key_down;
+        return NEXT_get_key if ! $key_down;
         if ( $char ) {
             if ( $char == 32 && $ctrl_key_state & ( RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED ) ) {
                 return CONTROL_SPACE;
@@ -134,7 +134,7 @@ sub _read_key {
         }
         else{
             if ( $ctrl_key_state & SHIFTED_MASK ) {
-                return NEXT_read_key;
+                return NEXT_get_key;
             }
             elsif ( $v_key_code == VK_PAGE_UP )   { return KEY_PAGE_UP }
             elsif ( $v_key_code == VK_PAGE_DOWN ) { return KEY_PAGE_DOWN }
@@ -146,7 +146,7 @@ sub _read_key {
             elsif ( $v_key_code == VK_DOWN )      { return KEY_DOWN }
             elsif ( $v_key_code == VK_INSERT )    { return KEY_INSERT }
             elsif ( $v_key_code == VK_DELETE )    { return KEY_DELETE }
-            else                                  { return NEXT_read_key }
+            else                                  { return NEXT_get_key }
         }
     }
     elsif ( $arg->{mouse} && $event_type == 2 ) {
@@ -163,7 +163,7 @@ sub _read_key {
                 $compat_event_type = 0b0000001; # 2
             }
             else {
-                return NEXT_read_key;
+                return NEXT_get_key;
             }
         }
         elsif ( $event_flags & MOUSE_WHEELED ) {
@@ -175,12 +175,12 @@ sub _read_key {
             }
         }
         else {
-            return NEXT_read_key;
+            return NEXT_get_key;
         }
         return _handle_mouse( $arg, $compat_event_type, $x, $y );
     }
     else {
-        return NEXT_read_key;
+        return NEXT_get_key;
     }
 }
 
@@ -307,20 +307,20 @@ sub choose {
     _write_first_screen( $arg );
 
     while ( 1 ) {
-        my $key = _read_key( $arg );
+        my $key = _get_key( $arg );
         if ( ! defined $key ) {
             $arg->{EOT} = 1;
             return;
         }
         my ( $new_avail_width, $new_avail_height ) = chars( $arg->{handle_out} );
         if ( $arg->{avail_width_orig} != $new_avail_width || $arg->{avail_height_orig} != $new_avail_height ) {
-            $arg->{list} = _copy_orig_list( $arg );
+            $arg->{list} = Term::Choose::_copy_orig_list( $arg );
             print LEFT x $arg->{screen_col}, UP x ( $arg->{screen_row} + $arg->{nr_prompt_lines} );
             print CLEAR_TO_END_OF_SCREEN;
             _write_first_screen( $arg );
             next;
         }
-        next if $key == NEXT_read_key;
+        next if $key == NEXT_get_key;
         next if $key == KEY_Tilde;
 
         # $arg->{rc2idx} holds the new list (AoA) formated in "_size_and_layout" appropirate to the choosen layout.
@@ -702,7 +702,7 @@ sub _wr_cell {
 sub _handle_mouse {
     my ( $arg, $event_type, $abs_mouse_x, $abs_mouse_y ) = @_;
     my $button_drag = ( $event_type & 0x20 ) >> 5;
-    return NEXT_read_key if $button_drag;
+    return NEXT_get_key if $button_drag;
     my $button_number;
     my $low_2_bits = $event_type & 0x03;
     if ( $low_2_bits == 3 ) {
@@ -723,7 +723,7 @@ sub _handle_mouse {
         return KEY_PAGE_DOWN;
     }
     my $pos_top_row = $arg->{abs_cursor_y} - $arg->{cursor_row};
-    return NEXT_read_key if $abs_mouse_y < $pos_top_row;
+    return NEXT_get_key if $abs_mouse_y < $pos_top_row;
     my $mouse_row = $abs_mouse_y - $pos_top_row;
     my $mouse_col = $abs_mouse_x;
     my( $found_row, $found_col );
@@ -774,7 +774,7 @@ sub _handle_mouse {
             }
         }
     }
-    return NEXT_read_key if ! $found;
+    return NEXT_get_key if ! $found;
     my $return_char = '';
     if ( $button_number == 1 ) {
         $return_char = KEY_ENTER;
@@ -783,7 +783,7 @@ sub _handle_mouse {
         $return_char = KEY_SPACE;
     }
     else {
-        return NEXT_read_key;
+        return NEXT_get_key;
     }
     if ( $found_row != $arg->{cursor}[ROW] || $found_col != $arg->{cursor}[COL] ) {
         my $tmp = $arg->{cursor};
@@ -811,7 +811,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.008
+Version 0.009
 
 =cut
 

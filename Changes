@@ -1,6 +1,10 @@
 Revision history for Term::Choose::Win32
 
 
+0.009   2013-09-18
+        - Fixed bug: added missing package name to "_copy_orig_list".
+        - Code refactoring.
+
 0.008   2013-09-12
         - Win32::Console::ANSI is used to hide the cursor instead of Win32::Console.
         - Win32::Console::ANSI Version 1.06 or greater is needed.

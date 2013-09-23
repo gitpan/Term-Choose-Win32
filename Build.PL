@@ -17,10 +17,11 @@ my $builder = Module::Build->new(
         'Test::More' => 0,
     },
     requires => {
-         'perl'                => '5.010000',
+        'perl'                 => '5.010000',
         'Carp'                 => 0,
+        'Exporter'             => 0,
         'Term::Size::Win32'    => '0.209',
-        'Term::Choose'         => '1.062',
+        'Term::Choose'         => '1.063',
         'Unicode::GCString'    => '2012.10',
         'Win32::Console'       => '0.09',
         'Win32::Console::ANSI' => '1.06',

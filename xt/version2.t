@@ -1,7 +1,6 @@
 use 5.010000;
 use strict;
 use warnings;
-use File::Spec::Functions qw(catfile);
 use Time::Piece;
 use Test::More tests => 3;
 
@@ -12,13 +11,13 @@ my $v_changes    = -1;
 my $release_date = -1;
 
 
-open my $fh1, '<', catfile( 'lib', 'Term', 'Choose', 'Win32.pm' ) or die $!;
+open my $fh1, '<', 'lib/Term/Choose/Win32.pm' or die $!;
 while ( my $line = readline $fh1 ) {
     if ( $line =~ /^our\ \$VERSION\ =\ '(\d\.\d\d\d)';/ ) {
         $v = $1;
     }
-    if ( $line =~ /\A=pod/ .. $line =~ /\A=cut/ ) {
-        if ( $line =~ m/\A\s*Version\s+(\S+)/m ) {
+    if ( $line =~ /^=pod/ .. $line =~ /^=cut/ ) {
+        if ( $line =~ /^\s*Version\s+(\S+)/ ) {
             $v_pod = $1;
         }
     }
@@ -26,9 +25,9 @@ while ( my $line = readline $fh1 ) {
 close $fh1;
 
 
-open my $fh_ch, '<', catfile( 'Changes' ) or die $!;
-while ( my $line = readline $fh_ch ) {
-    if ( $line =~ m/\A\s*([0-9][0-9.]*)\s+(\d\d\d\d-\d\d-\d\d)\s*\Z/m ) {
+open my $fh_ch, '<', 'Changes' or die $!;
+while ( my $line = <$fh_ch> ) {
+    if ( $line =~ /^\s*([0-9][0-9.]*)\s+(\d\d\d\d-\d\d-\d\d)\s*\Z/ ) {
         $v_changes = $1;
         $release_date = $2;
         last;

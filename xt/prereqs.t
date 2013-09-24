@@ -2,7 +2,6 @@ use warnings;
 use strict;
 use 5.10.0;
 use File::Find;
-use Module::CoreList;
 use Test::More;
 use Perl::PrereqScanner;
 
@@ -26,7 +25,7 @@ close $fh_m or die $!;
 
 
 my @files;
-for my $dir ( 'lib', 'bin', 't' ) {
+for my $dir ( 'lib', 't' ) {
     find( {
         wanted => sub {
             my $file = $File::Find::name;

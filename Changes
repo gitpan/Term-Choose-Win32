@@ -1,6 +1,13 @@
 Revision history for Term::Choose::Win32
 
 
+0.012   2013-12-13
+        - Modified behavior "relative position".
+        - The minimum required version of "Unicode::GCString" is now "2013.10".
+        - Removed the deprecated option name "screen_width" (Term::Choose).
+        - Added "no warnings utf8".
+        - Update documentation.
+
 0.011   2013-09-24
         - Update/bugfix in: keep relative position when moving page-wise.
 
@@ -17,8 +24,8 @@ Revision history for Term::Choose::Win32
         - Update documentation.
 
 0.007   2013-09-07
-        - Added option "max_height".
-        - Renamed option "screen_width" to "max_width".
+        - Added option "max_height" (Term::Choose).
+        - Renamed option "screen_width" to "max_width" (Term::Choose).
         - Updated documentation.
 
 0.006   2013-09-06

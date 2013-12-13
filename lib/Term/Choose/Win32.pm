@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.011';
+our $VERSION = '0.012';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -19,6 +19,7 @@ use Win32::Console::ANSI qw(:func);
 # print "\e(U";      # fails the 00-load test
 INIT{ print "\e(U" } # workaround
 
+no warnings 'utf8';
 #use warnings FATAL => qw(all);
 #use Log::Log4perl qw(get_logger);
 #my $log = get_logger( 'Term::Choose::Win32' );
@@ -364,13 +365,6 @@ sub choose {
             }
             else {
                 $arg->{cursor}[ROW]--;
-                if ( defined $arg->{backup_row} ) {
-                    $arg->{backup_row} = undef;
-                }
-                if ( defined $arg->{backup_col} ) {
-                    $arg->{cursor}[COL] = $arg->{backup_col};
-                    $arg->{backup_col}  = undef;
-                }
                 if ( $arg->{cursor}[ROW] >= $arg->{p_begin} ) {
                     _wr_cell( $arg, $arg->{cursor}[ROW] + 1, $arg->{cursor}[COL] );
                     _wr_cell( $arg, $arg->{cursor}[ROW],     $arg->{cursor}[COL] );
@@ -419,9 +413,6 @@ sub choose {
                 _beep( $arg );
             }
             else {
-                if ( defined $arg->{backup_col} ) {
-                    $arg->{backup_col} = undef;
-                }
                 if ( $arg->{cursor}[COL] > 0 ) {
                     $arg->{cursor}[COL]--;
                     _wr_cell( $arg, $arg->{cursor}[ROW], $arg->{cursor}[COL] + 1 );
@@ -429,9 +420,6 @@ sub choose {
                 }
                 else {
                     $arg->{cursor}[ROW]--;
-                    if ( defined $arg->{backup_row} ) {
-                        $arg->{backup_row} = undef;
-                    }
                     if ( $arg->{cursor}[ROW] >= $arg->{p_begin} ) {
                         $arg->{cursor}[COL] = $#{$arg->{rc2idx}[$arg->{cursor}[ROW]]};
                         _wr_cell( $arg, $arg->{cursor}[ROW] + 1, 0 );
@@ -464,9 +452,6 @@ sub choose {
             }
             else {
                 $arg->{cursor}[COL]--;
-                if ( defined $arg->{backup_col} ) {
-                    $arg->{backup_col} = undef;
-                }
                 _wr_cell( $arg, $arg->{cursor}[ROW], $arg->{cursor}[COL] + 1 );
                 _wr_cell( $arg, $arg->{cursor}[ROW], $arg->{cursor}[COL] );
             }
@@ -478,14 +463,6 @@ sub choose {
             else {
                 $arg->{row_on_top} = $arg->{avail_height} * ( int( $arg->{cursor}[ROW] / $arg->{avail_height} ) - 1 );
                 $arg->{cursor}[ROW] -= $arg->{avail_height};
-                if ( defined $arg->{backup_row} ) {
-                    $arg->{cursor}[ROW] = $arg->{backup_row};
-                    $arg->{backup_row}  = undef;
-                }
-                if ( defined $arg->{backup_col} ) {
-                    $arg->{cursor}[COL] = $arg->{backup_col};
-                    $arg->{backup_col}  = undef;
-                }
                 $arg->{p_begin} = $arg->{row_on_top};
                 $arg->{p_end}   = $arg->{p_begin} + $arg->{avail_height} - 1;
                 _wr_screen( $arg );
@@ -501,16 +478,13 @@ sub choose {
                 if ( $arg->{cursor}[ROW] >= $#{$arg->{rc2idx}} ) {
                     if ( $#{$arg->{rc2idx}} == $arg->{row_on_top} || ! $arg->{rest} || $arg->{cursor}[COL] <= $arg->{rest} - 1 ) {
                         if ( $arg->{cursor}[ROW] != $#{$arg->{rc2idx}} ) {
-                            $arg->{backup_row}  = $arg->{cursor}[ROW] - $arg->{avail_height};
                             $arg->{cursor}[ROW] = $#{$arg->{rc2idx}};
                         }
                         if ( $arg->{rest} && $arg->{cursor}[COL] > $arg->{rest} - 1 ) {
-                            $arg->{backup_col}  = $arg->{cursor}[COL];
                             $arg->{cursor}[COL] = $#{$arg->{rc2idx}[$arg->{cursor}[ROW]]};
                         }
                     }
                     else {
-                        $arg->{backup_row}  = $arg->{cursor}[ROW] - $arg->{avail_height};
                         $arg->{cursor}[ROW] = $#{$arg->{rc2idx}} - 1;
                     }
                 }
@@ -834,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.011
+Version 0.012
 
 =cut
 
@@ -880,7 +854,7 @@ Nothing by default.
 
 I<choose> expects as a first argument an array reference. The array the reference refers to holds the list items available for selection (in void context no selection can be made).
 
-The array the reference - passed with the first argument - refers to is called in the documentation simply array or list resp. elements (of the array).
+The array the reference - passed with the first argument - refers to is called in the documentation simply array or list respectively elements (of the array).
 
 Options can be passed with a hash reference as a second (optional) argument.
 
@@ -963,9 +937,9 @@ white-spaces in elements are replaced with simple spaces.
 
 =item *
 
-non printable characters are replaced with the I<replacement character> (U+FFFD).
+characters which match the Unicode character property I<Other> are removed.
 
-    $element =~ s/\P{Print}/\x{fffd}/g;
+    $element =~ s/\p{C}//g;
 
 =item *
 
@@ -1070,12 +1044,6 @@ Allowed values: 1 or greater
 
 (default: undef)
 
-=head4 screen_width DEPRECATED
-
-Use I<max_width> instead - I<screen_width> is now called I<max_width>.
-
-The deprecated name I<screen_width> will be removed in a future release.
-
 =head4 max_width
 
 If defined, sets the output width to I<max_width> if the terminal width is greater than I<max_width>.
@@ -1138,7 +1106,7 @@ Allowed values:  0 or greater
 
 0 - off (default)
 
-1 - return the index of the chosen element instead of the chosen element resp. the indices of the chosen elements instead of the chosen elements.
+1 - return the index of the chosen element instead of the chosen element respectively the indices of the chosen elements instead of the chosen elements.
 
 =head4 page
 
@@ -1216,7 +1184,7 @@ See INITIAL_TAB and SUBSEQUENT_TAB in L<Text::LineFold>.
 
 =head4 ll
 
-If all elements have the same length and this length is known before calling I<choose> it can be passed with this option.
+If all elements have the same length and this length is known before calling I<choose> the length can be passed with this option.
 
 If I<ll> is set, then I<choose> doesn't calculate the length of the longest element itself but uses the value passed with this option.
 
@@ -1224,11 +1192,9 @@ I<length> refers here to the number of print columns the element will use on the
 
 A way to determine the number of print columns is the use of I<columns> from L<Unicode::GCString>.
 
-The length of undefined elements and elements with an empty string depends on the value of the option I<undef> resp. on the value of the option I<empty>.
+The length of undefined elements and elements with an empty string depends on the value of the option I<undef> respectively on the value of the option I<empty>.
 
-If the option I<ll> is set the elements must be upgraded with utf8::upgrade or with an equivalent tool and not contain any non-printing character.
-
-The upgrade with utf8::upgrade is needed because a limitation of L<Unicode::GCString> (L<Bug #84661|https://rt.cpan.org/Public/Bug/Display.html?id=84661>).
+If the option I<ll> is set the elements must not contain any non-printing character.
 
 If I<ll> is set to a value less than the length of the elements the output will break.
 
@@ -1248,7 +1214,7 @@ Allowed values: 1 or greater
 
 =item * If the first argument is not a array reference I<choose> dies.
 
-=item * If the array referred by the first argument is empty I<choose> returns  I<undef> resp. an empty list and issues a warning.
+=item * If the array referred by the first argument is empty I<choose> returns  I<undef> respectively an empty list and issues a warning.
 
 =item * If the array referred by the first argument has more than I<limit> elements (default 100_000) I<choose> warns and uses the first I<limit> array elements.
 
@@ -1258,7 +1224,7 @@ Allowed values: 1 or greater
 
 =item * If an option value is not valid  I<choose> warns an falls back to the default value.
 
-=item * If after pressing a key L<Term::ReadKey>::ReadKey returns I<undef> I<choose> warns with "EOT: $!" and returns I<undef> resp. an empty list.
+=item * If after pressing a key L<Term::ReadKey>::ReadKey returns I<undef> I<choose> warns with "EOT: $!" and returns I<undef> respectively an empty list.
 
 =back
 

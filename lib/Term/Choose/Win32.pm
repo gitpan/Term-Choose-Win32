@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.012';
+our $VERSION = '0.013';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -808,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.012
+Version 0.013
 
 =cut
 
@@ -1194,9 +1194,11 @@ A way to determine the number of print columns is the use of I<columns> from L<U
 
 The length of undefined elements and elements with an empty string depends on the value of the option I<undef> respectively on the value of the option I<empty>.
 
-If the option I<ll> is set the elements must not contain any non-printing character.
+If the option I<ll> is set the replacements described in L</Modifications for the output> are not applied.
 
-If I<ll> is set to a value less than the length of the elements the output will break.
+If elements contain unsupported characters the output might break if the width (number of print columns) the replacement character does not correspond to the width of the replaced character - for example when a unsupported non-spacing character is replaced by a replacement character with a normal width.
+
+I<ll> is set to a value less than the length of the elements the output could break.
 
 If the value of I<ll> is greater than the screen width the elements will be trimmed to fit into the screen.
 
@@ -1270,7 +1272,7 @@ L<Term::Choose::Win32> disables the automatic conversion done by L<Win32::Consol
 
 =head2 Monospaced font
 
-It is needed a terminal that uses a monospaced font.
+It is needed a terminal that uses a monospaced font which supports the printed characters.
 
 =head2 Escape sequences
 

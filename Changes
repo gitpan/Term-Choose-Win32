@@ -1,6 +1,9 @@
 Revision history for Term::Choose::Win32
 
 
+0.013   2013-12-18
+        - Update documentation.
+
 0.012   2013-12-13
         - Modified behavior "relative position".
         - The minimum required version of "Unicode::GCString" is now "2013.10".

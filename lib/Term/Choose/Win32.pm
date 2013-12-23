@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.0;
 use strict;
 
-our $VERSION = '0.013';
+our $VERSION = '0.014';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -808,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.013
+Version 0.014
 
 =cut
 
@@ -1196,7 +1196,7 @@ The length of undefined elements and elements with an empty string depends on th
 
 If the option I<ll> is set the replacements described in L</Modifications for the output> are not applied.
 
-If elements contain unsupported characters the output might break if the width (number of print columns) the replacement character does not correspond to the width of the replaced character - for example when a unsupported non-spacing character is replaced by a replacement character with a normal width.
+If elements contain unsupported characters the output might break if the width (number of print columns) of the replacement character does not correspond to the width of the replaced character - for example when a unsupported non-spacing character is replaced by a replacement character with a normal width.
 
 I<ll> is set to a value less than the length of the elements the output could break.
 

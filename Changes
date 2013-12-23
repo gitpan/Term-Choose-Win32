@@ -1,6 +1,9 @@
 Revision history for Term::Choose::Win32
 
 
+0.014   2013-12-23
+        - Bugfix documentation.
+
 0.013   2013-12-18
         - Update documentation.
 

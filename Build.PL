@@ -1,4 +1,4 @@
-use 5.010000;
+use 5.010001;
 use warnings;
 use strict;
 die "No support for OS" if $^O ne 'MSWin32';
@@ -17,11 +17,11 @@ my $builder = Module::Build->new(
         'Test::More' => 0,
     },
     requires => {
-        'perl'                 => '5.010000',
+        'perl'                 => '5.010001',
         'Carp'                 => 0,
         'Exporter'             => 0,
         'Term::Size::Win32'    => '0.209',
-        'Term::Choose'         => '1.067',
+        'Term::Choose'         => '1.068',
         'Unicode::GCString'    => '2013.10',
         'Win32::Console'       => '0.09',
         'Win32::Console::ANSI' => '1.06',

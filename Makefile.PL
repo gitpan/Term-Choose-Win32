@@ -1,4 +1,4 @@
-use 5.010000;
+use 5.010001;
 use warnings;
 use strict;
 die "No support for OS" if $^O ne 'MSWin32';
@@ -7,7 +7,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     PL_FILES         => {},
-    MIN_PERL_VERSION => '5.010000',
+    MIN_PERL_VERSION => '5.010001',
     LICENSE          => 'perl',
     AUTHOR           => 'Matthaeus Kiem <cuer2s@gmail.com>',
     NAME             => 'Term::Choose::Win32',
@@ -20,7 +20,7 @@ WriteMakefile(
         'Carp'                 => 0,
         'Exporter'             => 0,
         'Term::Size::Win32'    => '0.209',
-        'Term::Choose'         => '1.067',
+        'Term::Choose'         => '1.068',
         'Unicode::GCString'    => '2013.10',
         'Win32::Console'       => '0.09',
         'Win32::Console::ANSI' => '1.06',

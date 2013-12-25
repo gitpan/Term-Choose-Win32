@@ -1,9 +1,9 @@
 package Term::Choose::Win32;
 
-use 5.10.0;
+use 5.10.1;
 use strict;
 
-our $VERSION = '0.014';
+our $VERSION = '0.015';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -808,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.014
+Version 0.015
 
 =cut
 
@@ -1234,7 +1234,7 @@ Allowed values: 1 or greater
 
 =head2 Perl Version
 
-Requires Perl Version 5.10.0 or greater.
+Requires Perl Version 5.10.1 or greater.
 
 =head2 Modules
 

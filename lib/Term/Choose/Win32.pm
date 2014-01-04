@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.1;
 use strict;
 
-our $VERSION = '0.015';
+our $VERSION = '0.016';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -230,7 +230,7 @@ sub _write_first_screen {
         $arg->{avail_width}  = MAX_COL_MOUSE_1003 if $arg->{avail_width}  > MAX_COL_MOUSE_1003;
         $arg->{avail_height} = MAX_ROW_MOUSE_1003 if $arg->{avail_height} > MAX_ROW_MOUSE_1003;
     }
-    $arg->{avail_width} = 1 if $arg->{avail_width}  < 1;
+    $arg->{avail_width} = 1 if $arg->{avail_width} < 1;
     if ( $arg->{prompt} eq '' ) {
         $arg->{nr_prompt_lines} = 0;
     }
@@ -776,7 +776,7 @@ sub _handle_mouse {
     if ( $button_number == 1 ) {
         $return_char = KEY_ENTER;
     }
-    elsif ( $button_number == 3  ) {
+    elsif ( $button_number == 3 ) {
         $return_char = KEY_SPACE;
     }
     else {
@@ -808,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.015
+Version 0.016
 
 =cut
 
@@ -963,7 +963,7 @@ There is a general upper limit of one billion for options which expect a number 
 
 If I<prompt> is undefined a default prompt-string will be shown.
 
-If the I<prompt> value is  an empty string ("") no prompt-line will be shown.
+If the I<prompt> value is an empty string ("") no prompt-line will be shown.
 
 default in list and scalar context: 'Your choice:'
 
@@ -1076,13 +1076,13 @@ Default may change in a future release.
 
 Sets the number of whitespaces between columns. (default: 2)
 
-Allowed values:  0 or greater
+Allowed values: 0 or greater
 
 =head4 pad_one_row
 
 Sets the number of whitespaces between elements if we have only one row. (default: value of the option I<pad>)
 
-Allowed values:  0 or greater
+Allowed values: 0 or greater
 
 =head4 clear_screen
 
@@ -1098,7 +1098,7 @@ I<default> expects a zero indexed value, so e.g. to highlight the third element 
 
 If the passed value is greater than the index of the last array element the first element is highlighted.
 
-Allowed values:  0 or greater
+Allowed values: 0 or greater
 
 (default: undef)
 
@@ -1152,7 +1152,7 @@ Allowed values: 1 or greater
 
 Sets the maximal allowed length of the array. (default: 100_000)
 
-Allowed values:  1 or greater
+Allowed values: 1 or greater
 
 =head4 undef
 
@@ -1216,7 +1216,7 @@ Allowed values: 1 or greater
 
 =item * If the first argument is not a array reference I<choose> dies.
 
-=item * If the array referred by the first argument is empty I<choose> returns  I<undef> respectively an empty list and issues a warning.
+=item * If the array referred by the first argument is empty I<choose> returns I<undef> respectively an empty list and issues a warning.
 
 =item * If the array referred by the first argument has more than I<limit> elements (default 100_000) I<choose> warns and uses the first I<limit> array elements.
 
@@ -1224,7 +1224,7 @@ Allowed values: 1 or greater
 
 =item * If an option does not exist I<choose> warns.
 
-=item * If an option value is not valid  I<choose> warns an falls back to the default value.
+=item * If an option value is not valid I<choose> warns an falls back to the default value.
 
 =item * If after pressing a key L<Term::ReadKey>::ReadKey returns I<undef> I<choose> warns with "EOT: $!" and returns I<undef> respectively an empty list.
 
@@ -1284,7 +1284,7 @@ L<Term::Choose::Win32> uses the following ANSI escape sequences:
 
     "\e[D"      Cursor Back
 
-    "\e[0J"     Clear to  End of Screen (Erase Data)
+    "\e[0J"     Clear to End of Screen (Erase Data)
 
     "\e[0m"     Normal/Reset
 
@@ -1324,7 +1324,7 @@ Thanks to the L<Perl-Community.de|http://www.perl-community.de> and the people f
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013 Matthäus Kiem.
+Copyright 2013-2014 Matthäus Kiem.
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

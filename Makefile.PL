@@ -20,7 +20,7 @@ WriteMakefile(
         'Carp'                 => 0,
         'Exporter'             => 0,
         'Term::Size::Win32'    => '0.209',
-        'Term::Choose'         => '1.068',
+        'Term::Choose'         => '1.069',
         'Unicode::GCString'    => '2013.10',
         'Win32::Console'       => '0.09',
         'Win32::Console::ANSI' => '1.06',

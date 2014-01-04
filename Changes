@@ -1,6 +1,9 @@
 Revision history for Term::Choose::Win32
 
 
+0.016   2014-01-04
+        - Update copyright.
+
 0.015   2013-12-25
         - Increased the minimum required Perl version from "5.10.0" to "5.10.1".
         - Update documentation.

@@ -8,10 +8,10 @@ my $file = 'lib/Term/Choose/Win32.pm';
 my $test_env = 0;
 open my $fh1, '<', $file or die $!;
 while ( my $line = readline $fh1 ) {
-    if ( $line =~ /\A\s*use\s+warnings\s+FATAL/s ) {
+    if ( $line =~ /^\s*use\s+warnings/s ) {
         $test_env++;
     }
-    if ( $line =~ /(?:\A\s*|\s+)use\s+Log::Log4perl/ ) {
+    if ( $line =~ /(?:^\s*|\s+)use\s+Log::Log4perl/ ) {
         $test_env++;
     }
 }

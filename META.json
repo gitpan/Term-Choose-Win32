@@ -34,15 +34,15 @@
          "requires" : {
             "Carp" : "0",
             "Exporter" : "0",
-            "Term::Choose" : "1.069",
-            "Term::Size::Win32" : "0.209",
-            "Unicode::GCString" : "2013.10",
-            "Win32::Console" : "0.09",
-            "Win32::Console::ANSI" : "1.06",
+            "Term::Choose" : "0",
+            "Term::Size::Win32" : "0",
+            "Unicode::GCString" : "0",
+            "Win32::Console" : "0",
+            "Win32::Console::ANSI" : "0",
             "perl" : "5.010001"
          }
       }
    },
    "release_status" : "stable",
-   "version" : "0.016"
+   "version" : "0.017"
 }

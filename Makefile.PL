@@ -14,16 +14,16 @@ WriteMakefile(
     VERSION_FROM     => 'lib/Term/Choose/Win32.pm',
     EXE_FILES        => [],
     BUILD_REQUIRES   => {
-        'Test::More' => 0,
+        'Test::More'           => 0,
     },
     PREREQ_PM => {
         'Carp'                 => 0,
         'Exporter'             => 0,
-        'Term::Size::Win32'    => '0.209',
-        'Term::Choose'         => '1.069',
-        'Unicode::GCString'    => '2013.10',
-        'Win32::Console'       => '0.09',
-        'Win32::Console::ANSI' => '1.06',
+        'Term::Size::Win32'    => 0,
+        'Term::Choose'         => 0,
+        'Unicode::GCString'    => 0,
+        'Win32::Console'       => 0,
+        'Win32::Console::ANSI' => 0,
     },
     clean => {
         FILES => 'Term-Choose-Win32-*',

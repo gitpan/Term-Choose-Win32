@@ -27,7 +27,7 @@ close $fh1;
 
 open my $fh_ch, '<', 'Changes' or die $!;
 while ( my $line = <$fh_ch> ) {
-    if ( $line =~ /^\s*([0-9][0-9.]*)\s+(\d\d\d\d-\d\d-\d\d)\s*\Z/ ) {
+    if ( $line =~ /^\s*(\d+\.\d\d\d)\s+(\d\d\d\d-\d\d-\d\d)\s*\Z/ ) {
         $v_changes = $1;
         $release_date = $2;
         last;

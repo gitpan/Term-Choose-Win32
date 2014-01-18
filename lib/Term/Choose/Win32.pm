@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.1;
 use strict;
 
-our $VERSION = '0.016';
+our $VERSION = '0.017';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -808,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.016
+Version 0.017
 
 =cut
 
@@ -956,8 +956,6 @@ All these modifications are made on a copy of the original array so I<choose> re
 =head3 Options
 
 Options which expect a number as their value expect integers.
-
-There is a general upper limit of one billion for options which expect a number as their value and where no upper limit is mentioned.
 
 =head4 prompt
 
@@ -1150,7 +1148,9 @@ Allowed values: 1 or greater
 
 =head4 limit
 
-Sets the maximal allowed length of the array. (default: 100_000)
+Sets the maximal allowed length of the array. (default: undef)
+
+If the array referred by the first argument has more than limit elements choose uses only the first limit array elements.
 
 Allowed values: 1 or greater
 
@@ -1218,8 +1218,6 @@ Allowed values: 1 or greater
 
 =item * If the array referred by the first argument is empty I<choose> returns I<undef> respectively an empty list and issues a warning.
 
-=item * If the array referred by the first argument has more than I<limit> elements (default 100_000) I<choose> warns and uses the first I<limit> array elements.
-
 =item * If the (optional) second argument is defined and not a hash reference I<choose> dies.
 
 =item * If an option does not exist I<choose> warns.
@@ -1232,9 +1230,9 @@ Allowed values: 1 or greater
 
 =head1 REQUIREMENTS
 
-=head2 Perl Version
+=head2 Perl version
 
-Requires Perl Version 5.10.1 or greater.
+Requires Perl version 5.10.1 or greater.
 
 =head2 Modules
 
@@ -1324,7 +1322,7 @@ Thanks to the L<Perl-Community.de|http://www.perl-community.de> and the people f
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013-2014 Matthäus Kiem.
+Copyright (C) 2013-2014 Matthäus Kiem.
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

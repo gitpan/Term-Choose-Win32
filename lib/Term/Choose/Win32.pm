@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.1;
 use strict;
 
-our $VERSION = '0.017';
+our $VERSION = '0.018';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -221,8 +221,8 @@ sub DESTROY {
 
 sub _write_first_screen {
     my ( $arg ) = @_;
-    ( $arg->{avail_width_orig}, $arg->{avail_height_orig} ) = chars( $arg->{handle_out} );
-    ( $arg->{avail_width}, $arg->{avail_height} ) = ( $arg->{avail_width_orig}, $arg->{avail_height_orig} );
+    ( $arg->{term_width}, $arg->{term_height} ) = chars( $arg->{handle_out} );
+    ( $arg->{avail_width}, $arg->{avail_height} ) = ( $arg->{term_width}, $arg->{term_height} );
     if ( $arg->{max_width} && $arg->{avail_width} > $arg->{max_width} ) {
         $arg->{avail_width} = $arg->{max_width};
     }
@@ -258,8 +258,8 @@ sub _write_first_screen {
     $arg->{cursor}     = [ 0, 0 ];
     Term::Choose::_set_default_cell( $arg ) if defined $arg->{default} && $arg->{default} <= $#{$arg->{list}};
     if ( $arg->{clear_screen} ) {
-        print NL x $arg->{avail_height_orig};
-        print UP x $arg->{avail_height_orig};
+        print NL x $arg->{term_height};
+        print UP x $arg->{term_height};
     }
     print $arg->{prompt_copy} if $arg->{prompt} ne '';
     _wr_screen( $arg );
@@ -313,8 +313,8 @@ sub choose {
             $arg->{EOT} = 1;
             return;
         }
-        my ( $new_avail_width, $new_avail_height ) = chars( $arg->{handle_out} );
-        if ( $arg->{avail_width_orig} != $new_avail_width || $arg->{avail_height_orig} != $new_avail_height ) {
+        my ( $new_width, $new_height ) = chars( $arg->{handle_out} );
+        if ( $new_width != $arg->{term_width} || $new_height != $arg->{term_height} ) {
             $arg->{list} = Term::Choose::_copy_orig_list( $arg );
             print LEFT x $arg->{screen_col}, UP x ( $arg->{screen_row} + $arg->{nr_prompt_lines} );
             print CLEAR_TO_END_OF_SCREEN;
@@ -808,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.017
+Version 0.018
 
 =cut
 
@@ -826,7 +826,6 @@ Version 0.017
     say "@choices";
 
     choose( [ 'Press ENTER to continue' ], { prompt => '' } );    # no choice
-
 
 =head1 DESCRIPTION
 
@@ -886,7 +885,7 @@ Called in void context I<choose> returns nothing.
 
 If the items of the list don't fit on the screen, the user can scroll to the next (previous) page(s).
 
-If the window size is changed I<choose> rewrites the screen. In list context marked items are reset.
+If the window size is changed, then as soon as the user enters a keystroke I<choose> rewrites the screen. In list context marked items are reset.
 
 The "q" key (or Ctrl-D) returns I<undef> or an empty list in list context.
 
@@ -913,7 +912,6 @@ PageUp key (or Ctrl-B) to go back one page, PageDown key (or Ctrl-F) to go forwa
 Home key (or Ctrl-A) to jump to the beginning of the list, End key (or Ctrl-E) to jump to the end of the list.
 
 =back
-
 
 =head3 Modifications for the output
 
@@ -998,7 +996,6 @@ From broad to narrow: 0 > 1 > 2 > 3
  |                      |   |                      |   | .. .. ..             |   | .. .. .. .. .. .. .. |
  |                      |   |                      |   |                      |   | .. .. .. .. .. .. .. |
  '----------------------'   '----------------------'   '----------------------'   '----------------------'
-
 
 =item
 
@@ -1294,9 +1291,9 @@ L<Term::Choose::Win32> uses the following ANSI escape sequences:
 
 If the option "hide_cursor" is enabled:
 
-"\e[?25l"   Hide Cursor
+    "\e[?25l"   Hide Cursor
 
-"\e[?25h"   Show Cursor
+    "\e[?25h"   Show Cursor
 
 To understand these escape sequences L<Term::Choose::Win32> uses the L<Win32::Console::ANSI> module.
 

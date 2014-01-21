@@ -1,6 +1,9 @@
 Revision history for Term::Choose::Win32
 
 
+0.018   2014-01-21
+        -Sync code to the new Term::Choose version (1.071).
+
 0.017   2014-01-18
         - Default value for option "limit" from 100_000 to not set (undef). (Term::Choose)
         - Removed the artificial general upper limit for options with no specific upper limit. (Term::Choose)

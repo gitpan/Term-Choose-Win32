@@ -1,6 +1,10 @@
 Revision history for Term::Choose::Win32
 
 
+0.019   2014-01-24
+        - Update README.
+        - Update license.
+
 0.018   2014-01-21
         -Sync code to the new Term::Choose version (1.071).
 

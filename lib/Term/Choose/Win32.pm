@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.1;
 use strict;
 
-our $VERSION = '0.018';
+our $VERSION = '0.019';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -808,7 +808,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.018
+Version 0.019
 
 =cut
 
@@ -1321,7 +1321,11 @@ Thanks to the L<Perl-Community.de|http://www.perl-community.de> and the people f
 
 Copyright (C) 2013-2014 Matthäus Kiem.
 
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under the same terms as Perl 5.10.0.
+
+See http://dev.perl.org/licenses/ for more information.
+
+This program is distributed in the hope that it will be useful, but without any warranty; without even the implied
+warranty of merchantability or fitness for a particular purpose.
 
 =cut
-

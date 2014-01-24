@@ -26,4 +26,4 @@ requires:
   Win32::Console: 0
   Win32::Console::ANSI: 0
   perl: 5.010001
-version: 0.018
+version: 0.019

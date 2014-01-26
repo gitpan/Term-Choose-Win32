@@ -3,7 +3,7 @@ package Term::Choose::Win32;
 use 5.10.1;
 use strict;
 
-our $VERSION = '0.019';
+our $VERSION = '0.020';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -219,9 +219,16 @@ sub DESTROY {
 }
 
 
+sub _get_term_size {
+    my ( $fh ) = @_;
+    my ( $term_width, $term_height ) = chars( $fh );
+    return $term_width - 1, $term_height;
+}
+
+
 sub _write_first_screen {
     my ( $arg ) = @_;
-    ( $arg->{term_width}, $arg->{term_height} ) = chars( $arg->{handle_out} );
+    ( $arg->{term_width}, $arg->{term_height} ) = _get_term_size( $arg->{handle_out} );
     ( $arg->{avail_width}, $arg->{avail_height} ) = ( $arg->{term_width}, $arg->{term_height} );
     if ( $arg->{max_width} && $arg->{avail_width} > $arg->{max_width} ) {
         $arg->{avail_width} = $arg->{max_width};
@@ -240,7 +247,7 @@ sub _write_first_screen {
     $arg->{tail} = $arg->{page} ? 1 : 0;
     $arg->{avail_height} -= $arg->{nr_prompt_lines} + $arg->{tail};
     if ( $arg->{avail_height} < $arg->{keep} ) {
-        my $height = ( chars( $arg->{handle_out} ) )[1];
+        my $height = ( _get_term_size( $arg->{handle_out} ) )[1];
         $arg->{avail_height} = $height >= $arg->{keep} ? $arg->{keep} : $height;
         $arg->{avail_height} = 1 if $arg->{avail_height} < 1;
     }
@@ -313,7 +320,7 @@ sub choose {
             $arg->{EOT} = 1;
             return;
         }
-        my ( $new_width, $new_height ) = chars( $arg->{handle_out} );
+        my ( $new_width, $new_height ) = _get_term_size( $arg->{handle_out} );
         if ( $new_width != $arg->{term_width} || $new_height != $arg->{term_height} ) {
             $arg->{list} = Term::Choose::_copy_orig_list( $arg );
             print LEFT x $arg->{screen_col}, UP x ( $arg->{screen_row} + $arg->{nr_prompt_lines} );
@@ -808,7 +815,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.019
+Version 0.020
 
 =cut
 

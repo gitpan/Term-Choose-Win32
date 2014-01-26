@@ -1,6 +1,9 @@
 Revision history for Term::Choose::Win32
 
 
+0.020   2014-01-26
+        - Bugfix: subtract one from terminal width (else it breaks the output if an element is longer than the terminal width - 1).
+
 0.019   2014-01-24
         - Update README.
         - Update license.

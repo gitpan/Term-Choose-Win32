@@ -1,9 +1,10 @@
 package Term::Choose::Win32;
 
 use 5.10.1;
+use warnings;
 use strict;
 
-our $VERSION = '0.020';
+our $VERSION = '0.021';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -815,7 +816,7 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.020
+Version 0.021
 
 =cut
 
@@ -840,7 +841,8 @@ Choose from a list of items.
 
 L<Term::Choose::Win32> is intended for 'MSWin32' operating systems. For other operating system see L<Term::Choose>.
 
-Based on the I<choose> function from the L<Term::Clui> module - for more details see L<Term::choose/MOTIVATION|https://metacpan.org/module/Term::Choose#MOTIVATION>.
+Based on the I<choose> function from the L<Term::Clui> module - for more details see
+L<Term::choose/MOTIVATION|https://metacpan.org/module/Term::Choose#MOTIVATION>.
 
 =head1 EXPORT
 
@@ -858,9 +860,11 @@ Nothing by default.
 
               choose( $array_ref [, \%options] );
 
-I<choose> expects as a first argument an array reference. The array the reference refers to holds the list items available for selection (in void context no selection can be made).
+I<choose> expects as a first argument an array reference. The array the reference refers to holds the list items
+available for selection (in void context no selection can be made).
 
-The array the reference - passed with the first argument - refers to is called in the documentation simply array or list respectively elements (of the array).
+The array the reference - passed with the first argument - refers to is called in the documentation simply array or list
+respective elements (of the array).
 
 Options can be passed with a hash reference as a second (optional) argument.
 
@@ -870,7 +874,8 @@ Options can be passed with a hash reference as a second (optional) argument.
 
 =item
 
-If I<choose> is called in a I<scalar context>, the user can choose an item by using the "move-around-keys" and confirming with "Return".
+If I<choose> is called in a I<scalar context>, the user can choose an item by using the "move-around-keys" and
+confirming with "Return".
 
 I<choose> then returns the chosen item.
 
@@ -884,7 +889,8 @@ In I<list context> "Ctrl-SpaceBar" inverts the choices: marked items are unmarke
 
 =item
 
-If I<choose> is called in an I<void context>, the user can move around but mark nothing; the output shown by I<choose> can be closed with "Return".
+If I<choose> is called in an I<void context>, the user can move around but mark nothing; the output shown by I<choose>
+can be closed with "Return".
 
 Called in void context I<choose> returns nothing.
 
@@ -892,11 +898,13 @@ Called in void context I<choose> returns nothing.
 
 If the items of the list don't fit on the screen, the user can scroll to the next (previous) page(s).
 
-If the window size is changed, then as soon as the user enters a keystroke I<choose> rewrites the screen. In list context marked items are reset.
+If the window size is changed, then as soon as the user enters a keystroke I<choose> rewrites the screen. In list
+context marked items are reset.
 
 The "q" key (or Ctrl-D) returns I<undef> or an empty list in list context.
 
-With a I<mouse> mode enabled (and if supported by the terminal) the item can be chosen with the left mouse key, in list context the right mouse key can be used instead the "SpaceBar" key.
+With a I<mouse> mode enabled (and if supported by the terminal) the item can be chosen with the left mouse key, in list
+context the right mouse key can be used instead the "SpaceBar" key.
 
 =head3 Keys to move around:
 
@@ -956,7 +964,8 @@ if the length of an element is greater than the width of the screen the element 
 
 =back
 
-All these modifications are made on a copy of the original array so I<choose> returns the chosen elements as they were passed to the function without modifications.
+All these modifications are made on a copy of the original array so I<choose> returns the chosen elements as they were
+passed to the function without modifications.
 
 =head3 Options
 
@@ -1094,7 +1103,8 @@ Allowed values: 0 or greater
 
 =head4 default
 
-With the option I<default> it can be selected an element, which will be highlighted as the default instead of the first element.
+With the option I<default> it can be selected an element, which will be highlighted as the default instead of the first
+element.
 
 I<default> expects a zero indexed value, so e.g. to highlight the third element the value would be I<2>.
 
@@ -1108,7 +1118,8 @@ Allowed values: 0 or greater
 
 0 - off (default)
 
-1 - return the index of the chosen element instead of the chosen element respectively the indices of the chosen elements instead of the chosen elements.
+1 - return the index of the chosen element instead of the chosen element respective the indices of the chosen elements
+instead of the chosen elements.
 
 =head4 page
 
@@ -1154,7 +1165,8 @@ Allowed values: 1 or greater
 
 Sets the maximal allowed length of the array. (default: undef)
 
-If the array referred by the first argument has more than limit elements choose uses only the first limit array elements.
+If the array referred by the first argument has more than limit elements choose uses only the first limit array
+elements.
 
 Allowed values: 1 or greater
 
@@ -1178,7 +1190,8 @@ The option I<lf> expects a reference to an array with two elements;
 
 - first element (INITIAL_TAB): the number of spaces inserted at beginning of paragraphs
 
-- second element (SUBSEQUENT_TAB): the number of spaces inserted at the beginning of all broken lines apart from the beginning of paragraphs
+- second element (SUBSEQUENT_TAB): the number of spaces inserted at the beginning of all broken lines apart from the
+beginning of paragraphs
 
 Allowed values for the two elements are: 0 or greater.
 
@@ -1188,19 +1201,24 @@ See INITIAL_TAB and SUBSEQUENT_TAB in L<Text::LineFold>.
 
 =head4 ll
 
-If all elements have the same length and this length is known before calling I<choose> the length can be passed with this option.
+If all elements have the same length and this length is known before calling I<choose> the length can be passed with
+this option.
 
-If I<ll> is set, then I<choose> doesn't calculate the length of the longest element itself but uses the value passed with this option.
+If I<ll> is set, then I<choose> doesn't calculate the length of the longest element itself but uses the value passed
+with this option.
 
 I<length> refers here to the number of print columns the element will use on the terminal.
 
 A way to determine the number of print columns is the use of I<columns> from L<Unicode::GCString>.
 
-The length of undefined elements and elements with an empty string depends on the value of the option I<undef> respectively on the value of the option I<empty>.
+The length of undefined elements and elements with an empty string depends on the value of the option I<undef>
+respective on the value of the option I<empty>.
 
 If the option I<ll> is set the replacements described in L</Modifications for the output> are not applied.
 
-If elements contain unsupported characters the output might break if the width (number of print columns) of the replacement character does not correspond to the width of the replaced character - for example when a unsupported non-spacing character is replaced by a replacement character with a normal width.
+If elements contain unsupported characters the output might break if the width (number of print columns) of the
+replacement character does not correspond to the width of the replaced character - for example when a unsupported
+non-spacing character is replaced by a replacement character with a normal width.
 
 I<ll> is set to a value less than the length of the elements the output could break.
 
@@ -1220,7 +1238,8 @@ Allowed values: 1 or greater
 
 =item * If the first argument is not a array reference I<choose> dies.
 
-=item * If the array referred by the first argument is empty I<choose> returns I<undef> respectively an empty list and issues a warning.
+=item * If the array referred by the first argument is empty I<choose> returns I<undef> respective an empty list and
+issues a warning.
 
 =item * If the (optional) second argument is defined and not a hash reference I<choose> dies.
 
@@ -1228,7 +1247,8 @@ Allowed values: 1 or greater
 
 =item * If an option value is not valid I<choose> warns an falls back to the default value.
 
-=item * If after pressing a key L<Term::ReadKey>::ReadKey returns I<undef> I<choose> warns with "EOT: $!" and returns I<undef> respectively an empty list.
+=item * If after pressing a key L<Term::ReadKey>::ReadKey returns I<undef> I<choose> warns with "EOT: $!" and returns
+I<undef> or an empty list in list context.
 
 =back
 
@@ -1272,9 +1292,13 @@ I<choose> expects decoded strings as array elements.
 
 L<Term::Choose::Win32> disables the automatic conversion done by L<Win32::Console::ANSI> globally.
 
+=head2 encoding layer for STDOUT
+
+For a correct output it is required to set an encoding layer for STDOUT matching the terminal's character set.
+
 =head2 Monospaced font
 
-It is needed a terminal that uses a monospaced font which supports the printed characters.
+It is required a terminal that uses a monospaced font which supports the printed characters.
 
 =head2 Escape sequences
 
@@ -1322,17 +1346,14 @@ Matthäus Kiem <cuer2s@gmail.com>
 
 Based on and inspired by the I<choose> function from the L<Term::Clui> module.
 
-Thanks to the L<Perl-Community.de|http://www.perl-community.de> and the people form L<stackoverflow|http://stackoverflow.com> for the help.
+Thanks to the L<Perl-Community.de|http://www.perl-community.de> and the people form
+L<stackoverflow|http://stackoverflow.com> for the help.
 
 =head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2013-2014 Matthäus Kiem.
 
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl 5.10.0.
-
-See http://dev.perl.org/licenses/ for more information.
-
-This program is distributed in the hope that it will be useful, but without any warranty; without even the implied
-warranty of merchantability or fitness for a particular purpose.
+This library is free software; you can redistribute it and/or modify it under the same terms as Perl 5.10.0. For
+details, see the full text of the licenses in the file LICENSE.
 
 =cut

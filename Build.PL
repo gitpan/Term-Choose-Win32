@@ -24,7 +24,7 @@ my $builder = Module::Build->new(
         'Carp'                 => 0,
         'Exporter'             => 0,
         'Term::Size::Win32'    => 0,
-        'Term::Choose'         => 0,
+        'Term::Choose'         => '==1.074',
         'Unicode::GCString'    => 0,
         'Win32::Console'       => 0,
         'Win32::Console::ANSI' => 0,

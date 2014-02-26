@@ -1,6 +1,10 @@
 Revision history for Term::Choose::Win32
 
 
+0.022   2014-02-26
+        - Announcement: probably "Term::Choose::Win32" will be replaced or removed with the next (stable) release of
+          "Term::Choose" and MSWin32 support will be added to "Term::Choose".
+
 0.021   2014-02-13
         - Added "use warnings;".
         - Added LICENSE file.

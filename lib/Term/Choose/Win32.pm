@@ -4,7 +4,7 @@ use 5.10.1;
 use warnings;
 use strict;
 
-our $VERSION = '0.021';
+our $VERSION = '0.022';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -816,9 +816,21 @@ Term::Choose::Win32 - Choose items from a list.
 
 =head1 VERSION
 
-Version 0.021
+Version 0.022
 
 =cut
+
+=head1 ANNOUNCEMENT
+
+If everything works as planned, with the next release of L<Term::Choose>:
+
+- L<Term::Choose::Win32> is removed or replaced by a version which is not expected to be used directly.
+
+- L<Term::Choose> supports MSWin32 OS.
+
+So please read the documentation before upgrading.
+
+This version of c<Term::Choose::Win32> requires the version 1.074 of C<Term::Choose>.
 
 =head1 SYNOPSIS
 

@@ -1,8 +1,10 @@
 Revision history for Term::Choose::Win32
 
+0.024   2014-03-06
+        - Deprecation. Fixed documentation.
 
-0.023   2014-00-00
-        -
+0.023   2014-03-06
+        - Deprecation.
 
 0.022   2014-02-26
         - Announcement: probably "Term::Choose::Win32" will be replaced or removed with the next (stable) release of

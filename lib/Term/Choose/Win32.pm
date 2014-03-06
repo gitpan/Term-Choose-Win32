@@ -4,7 +4,7 @@ use 5.10.1;
 use warnings;
 use strict;
 
-our $VERSION = '0.023';
+our $VERSION = '0.024';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -812,11 +812,11 @@ __END__
 
 =head1 NAME
 
-Term::Choose::Win32 - Deprecated. Use Term::Choose instead
+Term::Choose::Win32 - DEPRECATED. Use Term::Choose instead
 
 =head1 VERSION
 
-Version 0.023
+Version 0.024
 
 =cut
 
@@ -835,7 +835,7 @@ Version 0.023
 
     choose( [ 'Press ENTER to continue' ], { prompt => '' } );    # no choice
     
-head1 DEPRECATED
+=head1 DEPRECATED
 
 This module is deprecated - use L<Term::Choose> instead. L<Term::Choose> supports since version C<1.100> MSWin32 OS an 
 

@@ -4,7 +4,7 @@ use 5.10.1;
 use warnings;
 use strict;
 
-our $VERSION = '0.022';
+our $VERSION = '0.023';
 use Exporter 'import';
 our @EXPORT_OK = qw(choose);
 
@@ -812,25 +812,13 @@ __END__
 
 =head1 NAME
 
-Term::Choose::Win32 - Choose items from a list.
+Term::Choose::Win32 - Deprecated. Use Term::Choose instead
 
 =head1 VERSION
 
-Version 0.022
+Version 0.023
 
 =cut
-
-=head1 ANNOUNCEMENT
-
-If everything works as planned, with the next release of L<Term::Choose>:
-
-- L<Term::Choose::Win32> is removed or replaced by a version which is not expected to be used directly.
-
-- L<Term::Choose> supports MSWin32 OS.
-
-So please read the documentation before upgrading.
-
-This version of c<Term::Choose::Win32> requires the version 1.074 of C<Term::Choose>.
 
 =head1 SYNOPSIS
 
@@ -846,12 +834,18 @@ This version of c<Term::Choose::Win32> requires the version 1.074 of C<Term::Cho
     say "@choices";
 
     choose( [ 'Press ENTER to continue' ], { prompt => '' } );    # no choice
+    
+head1 DEPRECATED
+
+This module is deprecated - use L<Term::Choose> instead. L<Term::Choose> supports since version C<1.100> MSWin32 OS an 
+
+comes with its own C<Term::Choose::Win32> plugin.
+
+This module will be removed.
 
 =head1 DESCRIPTION
 
 Choose from a list of items.
-
-L<Term::Choose::Win32> is intended for 'MSWin32' operating systems. For other operating system see L<Term::Choose>.
 
 Based on the I<choose> function from the L<Term::Clui> module - for more details see
 L<Term::choose/MOTIVATION|https://metacpan.org/module/Term::Choose#MOTIVATION>.
@@ -1278,7 +1272,7 @@ Used modules not provided as core modules:
 
 =item
 
-L<Term::Choose>
+L<Term::Choose> version 1.074
 
 =item
 

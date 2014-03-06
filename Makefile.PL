@@ -16,6 +16,7 @@ WriteMakefile(
     BUILD_REQUIRES   => {
         'Test::More'           => 0,
     },
+    PREREQ_FATAL     => 1,
     PREREQ_PM => {
         'constant'             => 0,
         'strict'               => 0,
